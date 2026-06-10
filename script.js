@@ -4,6 +4,7 @@ const progress = [...document.querySelectorAll(".quiz-progress span")];
 const toast = document.querySelector(".toast");
 let currentStep = 0;
 let currentLanguage = "en";
+const quizSelection = { occasion: null, mood: null };
 
 const coutureReferences = {
   featured: [
@@ -65,6 +66,76 @@ const externalImageSources = {
   "assets/chanel-fall-2024-pearl-trim-jacket-dress.jpg": ["https://assets.vogue.com/photos/667a9f99b9c327e551e6a2d7/master/w_960,c_limit/00016-chanel-fall-2024-couture-credit-gorunway.jpg","https://www.vogue.com/fashion-shows/fall-2024-couture/chanel/slideshow/collection"],
   "assets/armani-prive-spring-2024-liquid-satin-suit.jpg": ["https://assets.vogue.com/photos/65b0c3283a7c1b133dfccfc3/master/w_960,c_limit/00017-armani-spring-2024-couture-credit-gorunway.jpg","https://www.vogue.com/fashion-shows/spring-2024-couture/armani-prive/slideshow/collection"]
 };
+
+const quizConceptReferences = [
+  ["RUNWAY TO WARDROBE","STYLING CONCEPT","Capucines-Inspired Quiet Luxury Styling","Capucines 灵感静奢造型","Quiet Luxury / Considered Authority","静奢 / 克制权威","Formal Dinner / Private Viewing","正式晚宴 / 私人预展","A consultation-led styling direction pairing sculptural accessories with restrained tailoring.","以雕塑感配饰与克制剪裁组合而成的咨询驱动造型方向。","It translates quietly powerful luxury into a polished, personal styling proposition.","将安静而有力量的奢华转化为精致且个性化的造型提案。","assets/sculpted.png","ref-tweed"],
+  ["DIOR","SPRING 2024 COUTURE","The Minimal Cream Look","极简奶油色造型","Minimal Cream / Relaxed Refinement","奶油极简 / 松弛精致","Formal Dinner / Wedding / Cultural Event","正式晚宴 / 婚礼 / 文化活动","A softly structured cream styling reference with calm proportion and refined ease.","柔和结构、平静比例与精致松弛感构成的奶油色造型参考。","It offers an understated bridge between ceremonial dressing and effortless modern luxury.","在仪式感着装与轻松现代奢华之间建立低调连接。","assets/dior-spring-2024-architectural-white-dress.jpg","ref-white"]
+];
+
+const referenceKey = (brand, look) => `${brand}|${look}`;
+const recommendationLookup = new Map(
+  [...Object.values(coutureReferences).flat(), ...quizConceptReferences].map(item => [referenceKey(item[0], item[2]), item])
+);
+
+const recommendationMatrix = {
+  "Formal Dinner": {
+    "Quietly Powerful": [["CHANEL","The Couture Tweed Set"],["DIOR","The Architectural White Dress"],["RUNWAY TO WARDROBE","Capucines-Inspired Quiet Luxury Styling"]],
+    "Romantic & Dramatic": [["ELIE SAAB","The Embroidered Evening Gown"],["ZUHAIR MURAD","The Red Carpet Cape Gown"],["VALENTINO","The Soft Ivory Couture Dress"]],
+    "Sharp & Futuristic": [["IRIS VAN HERPEN","The Aquatic Architecture Dress"],["IRIS VAN HERPEN","The Kinetic Sculpture Gown"],["SCHIAPARELLI","The Sculptural Black Gown"]],
+    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["ARMANI PRIVÉ","The Liquid Satin Suit"],["DIOR","The Minimal Cream Look"]]
+  },
+  "Wedding": {
+    "Quietly Powerful": [["DIOR","The Architectural White Dress"],["VALENTINO","The Soft Ivory Couture Dress"],["CHANEL","The Couture Tweed Set"]],
+    "Romantic & Dramatic": [["GIAMBATTISTA VALLI","The Floral Volume Gown"],["ELIE SAAB","The Crystal Cape Gown"],["VALENTINO","The Soft Ivory Couture Dress"]],
+    "Sharp & Futuristic": [["IRIS VAN HERPEN","The Ethereal Lace Structure"],["IRIS VAN HERPEN","The Celestial Web Dress"],["SCHIAPARELLI","The Sculptural Ivory Look"]],
+    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["DIOR","The Minimal Cream Look"],["ARMANI PRIVÉ","The Liquid Satin Suit"]]
+  },
+  "Art & Culture": {
+    "Quietly Powerful": [["SCHIAPARELLI","The Black Anatomy Gown"],["DIOR","The Architectural White Dress"],["CHANEL","The Pearl Trim Jacket Dress"]],
+    "Romantic & Dramatic": [["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Sheer Rose Dress"],["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Subversive Pearl Dress"],["GIAMBATTISTA VALLI","The Floral Volume Gown"]],
+    "Sharp & Futuristic": [["IRIS VAN HERPEN","The Oceanic Wing Gown"],["IRIS VAN HERPEN","The Aquatic Architecture Dress"],["IRIS VAN HERPEN","The Kinetic Sculpture Gown"]],
+    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["ARMANI PRIVÉ","The Liquid Satin Suit"],["DIOR","The Minimal Cream Look"]]
+  },
+  "Private Party": {
+    "Quietly Powerful": [["SCHIAPARELLI","The Sculptural Black Gown"],["CHANEL","The Pearl Trim Jacket Dress"],["DIOR","The Architectural White Dress"]],
+    "Romantic & Dramatic": [["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Subversive Pearl Mini"],["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Black Corset Tulle Gown"],["ELIE SAAB","The Crystal Cape Gown"]],
+    "Sharp & Futuristic": [["IRIS VAN HERPEN","The Celestial Web Dress"],["IRIS VAN HERPEN","The Oceanic Wing Gown"],["SCHIAPARELLI","The Black Anatomy Gown"]],
+    "Relaxed & Refined": [["ARMANI PRIVÉ","The Liquid Satin Suit"],["CHANEL","The Couture Tweed Set"],["DIOR","The Minimal Cream Look"]]
+  }
+};
+
+function quizRecommendationCard(item) {
+  const [brand, season, enLook, zhLook, enMood, zhMood, enOccasion, zhOccasion, , , enWhy, zhWhy, image, visualClass] = item;
+  const zh = currentLanguage === "zh";
+  const [externalImage] = externalImageSources[image] || [image];
+  return `<article class="quiz-recommendation-card">
+    <div class="quiz-recommendation-image ${visualClass}"><img src="${externalImage}" data-fallback="${image}" alt="${brand} ${season} — ${zh ? zhLook : enLook}, ${zh ? "仅作视觉参考" : "visual reference only"}"><span>${zh ? "仅作视觉参考" : "VISUAL REFERENCE ONLY"}</span></div>
+    <div class="quiz-recommendation-copy"><p>${brand} · ${season}</p><h3>${zh ? zhLook : enLook}</h3>
+    <dl><div><dt>${zh ? "情绪" : "Mood"}</dt><dd>${zh ? zhMood : enMood}</dd></div><div><dt>${zh ? "场合" : "Occasion"}</dt><dd>${zh ? zhOccasion : enOccasion}</dd></div><div><dt>${zh ? "推荐理由" : "Why this look"}</dt><dd>${zh ? zhWhy : enWhy}</dd></div></dl></div>
+  </article>`;
+}
+
+function renderQuizRecommendations() {
+  const container = document.querySelector(".quiz-recommendations");
+  if (!quizSelection.occasion || !quizSelection.mood) {
+    container.innerHTML = "";
+    return;
+  }
+  const recommendations = recommendationMatrix[quizSelection.occasion][quizSelection.mood]
+    .map(([brand, look]) => recommendationLookup.get(referenceKey(brand, look)))
+    .filter(Boolean);
+  container.innerHTML = recommendations.map(quizRecommendationCard).join("");
+  const summary = document.querySelectorAll(".quiz-selection-summary button");
+  summary[0].textContent = `${currentLanguage === "zh" ? "场合" : "Occasion"} · ${currentLanguage === "zh" ? translations[quizSelection.occasion] : quizSelection.occasion} ↗`;
+  summary[1].textContent = `${currentLanguage === "zh" ? "情绪" : "Mood"} · ${currentLanguage === "zh" ? translations[quizSelection.mood] : quizSelection.mood} ↗`;
+}
+
+function renderQuizSelections() {
+  document.querySelectorAll(".option-grid button").forEach(button => {
+    const selectionType = button.closest(".quiz-step").dataset.step === "1" ? "occasion" : "mood";
+    button.classList.toggle("selected", quizSelection[selectionType] === button.dataset.selectionValue);
+  });
+}
 
 function referenceCard(item, featured = false, future = false) {
   const [brand, season, enLook, zhLook, enMood, zhMood, enOccasion, zhOccasion, enNotes, zhNotes, enWhy, zhWhy, image, visualClass] = item;
@@ -241,9 +312,9 @@ const translations = {
   "Romantic & Dramatic": "浪漫且戏剧化",
   "Sharp & Futuristic": "利落与未来感",
   "Relaxed & Refined": "松弛但精致",
-  "Your initial style direction:": "你的初步风格方向：",
-  "Sculpted Romanticism": "雕塑浪漫主义",
-  "We will balance soft textures with clear structure to create your personal styling proposal.": "我们会融合柔软质感与清晰结构，为你准备一份专属造型提案。",
+  "Your curated couture direction.": "你的高定精选方向。",
+  "Three runway references selected for your occasion and desired presence.": "根据你的场合与期待呈现的气质，精选三组秀场参考。",
+  "Recommendations are based on occasion, mood, and runway reference research. Visual references only, not actual rental inventory.": "推荐基于场合、情绪与秀场参考研究。仅作视觉参考，并非实际租赁库存。",
   "See My Curated Looks": "查看为我精选的造型"
 };
 
@@ -270,6 +341,8 @@ function setLanguage(language) {
   document.querySelectorAll(".lang-en").forEach(item => item.classList.toggle("active", language === "en"));
   document.querySelectorAll(".lang-zh").forEach(item => item.classList.toggle("active", language === "zh"));
   renderArchive();
+  renderQuizSelections();
+  renderQuizRecommendations();
 }
 
 document.querySelectorAll(".language-toggle").forEach(toggle => toggle.addEventListener("click", () => {
@@ -285,6 +358,9 @@ function showToast(message) {
 function renderQuiz() {
   steps.forEach((step, index) => step.classList.toggle("active", index === currentStep));
   progress.forEach((item, index) => item.classList.toggle("on", index <= currentStep));
+  document.querySelector(".quiz-modal").classList.toggle("quiz-results-open", currentStep === 2);
+  renderQuizSelections();
+  if (currentStep === 2) renderQuizRecommendations();
 }
 
 function bindQuizTriggers() {
@@ -303,13 +379,24 @@ function bindQuizTriggers() {
 
 renderArchive();
 
+document.querySelectorAll(".option-grid button").forEach(button => {
+  button.dataset.selectionValue = button.textContent.trim();
+});
+
 document.querySelector(".modal-close").addEventListener("click", () => backdrop.classList.remove("open"));
 backdrop.addEventListener("click", event => {
   if (event.target === backdrop) backdrop.classList.remove("open");
 });
 
 document.querySelectorAll(".option-grid button").forEach(option => option.addEventListener("click", () => {
-  currentStep = Math.min(currentStep + 1, steps.length - 1);
+  const selectionType = option.closest(".quiz-step").dataset.step === "1" ? "occasion" : "mood";
+  quizSelection[selectionType] = option.dataset.selectionValue;
+  currentStep = selectionType === "occasion" ? 1 : 2;
+  renderQuiz();
+}));
+
+document.querySelectorAll(".quiz-selection-summary button").forEach(button => button.addEventListener("click", () => {
+  currentStep = Number(button.dataset.editStep);
   renderQuiz();
 }));
 
