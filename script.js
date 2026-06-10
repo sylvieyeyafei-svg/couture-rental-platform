@@ -43,6 +43,7 @@ const coutureReferences = {
 };
 
 const externalImageSources = {
+  "assets/sculpted.png": ["https://assets.vogue.com/photos/65b0c3283a7c1b133dfccfc3/master/w_960,c_limit/00017-armani-spring-2024-couture-credit-gorunway.jpg","https://www.vogue.com/fashion-shows/spring-2024-couture/armani-prive/slideshow/collection"],
   "assets/schiaparelli-fall-2024-sculptural-black-gown.jpg": ["https://assets.vogue.com/photos/667998fcb487fb6923e41e85/master/w_960,c_limit/00015-schiaparelli-fall-2024-couture-credit-brand.jpg","https://www.vogue.com/fashion-shows/fall-2024-couture/schiaparelli/slideshow/collection"],
   "assets/iris-van-herpen-fall-2023-aquatic-architecture-dress.jpg": ["https://assets.vogue.com/photos/64a2b9cb117ea73b4611d9f9/master/w_960,c_limit/00006-iris-van-herpen-fall-2023-couture-credit-gorunway.jpg","https://www.vogue.com/fashion-shows/fall-2023-couture/iris-van-herpen/slideshow/collection"],
   "assets/gaultier-simone-rocha-spring-2024-subversive-pearl-dress.jpg": ["https://assets.vogue.com/photos/65b140691cde98af98bd67ef/master/w_960,c_limit/00023-jean-paul-gaultier-spring-2024-couture-credit-gorunway.jpg","https://www.vogue.com/fashion-shows/spring-2024-couture/jean-paul-gaultier/slideshow/collection"],
