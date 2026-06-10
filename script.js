@@ -170,6 +170,27 @@ document.addEventListener("error", event => {
 }, true);
 
 const translations = {
+  "PRIVATE COUTURE CONSULTATION · DIGITAL ARCHIVE": "私人高定咨询 · 数字档案",
+  "PARIS · LONDON · NEW YORK": "巴黎 · 伦敦 · 纽约",
+  "THE COUTURE INTELLIGENCE ISSUE · 01": "高定洞察特刊 · 01",
+  "Runway intelligence,": "秀场洞察，",
+  "personally worn.": "为你而穿。",
+  "An editorial styling service translating runway research and brand intelligence into singular couture directions, curated around the way you want to arrive.": "一项编辑式造型服务，将秀场研究与品牌洞察转化为独特的高定方向，围绕你期待的亮相方式而策划。",
+  "Explore the Edit": "探索本期编辑",
+  "Begin Consultation": "开始造型咨询",
+  "01 / EDITORIAL THESIS": "01 / 编辑主张",
+  "Couture access needs": "体验高定需要",
+  "an editor.": "一位编辑。",
+  "We connect the cultural intelligence of the runway with the intimacy of personal styling, turning research into considered, wearable expression.": "我们连接秀场的文化洞察与私人造型的亲密体验，将研究转化为经过思考、真正可穿的个人表达。",
+  "Read the platform thesis": "阅读平台主张",
+  "Observe": "观察",
+  "Runway signals and cultural shifts": "秀场信号与文化变化",
+  "Interpret": "解读",
+  "Brand codes through a personal lens": "以个人视角解读品牌语言",
+  "Curate": "策划",
+  "A singular, occasion-led direction": "独特且以场合为导向的方向",
+  "THE FEATURED EDIT · ISSUE 01": "精选编辑 · 第 01 期",
+  "PLATFORM THESIS · 2026": "平台主张 · 2026",
   "GRADUATE INNOVATION PROJECT · 2026": "研究生创新项目 · 2026",
   "FROM RUNWAY INTELLIGENCE TO RENTABLE COUTURE": "从秀场洞察到可租赁高定",
   "The Edit": "趋势编辑",
@@ -435,3 +456,25 @@ document.addEventListener("keydown", event => {
     mobileMenu.classList.remove("open");
   }
 });
+
+const header = document.querySelector(".site-header");
+const updateHeader = () => header.classList.toggle("is-scrolled", window.scrollY > 40);
+window.addEventListener("scroll", updateHeader, { passive: true });
+updateHeader();
+
+const revealTargets = document.querySelectorAll(
+  ".manifesto-copy, .stats, .archive-heading, .featured-card, .rationale-title, .rationale-grid, .chapter-heading, .archive-card, .future-intro, .future-card, .how-intro, .steps, .journal-content, .cta h2"
+);
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.08, rootMargin: "0px 0px -5% 0px" });
+  revealTargets.forEach(target => {
+    target.classList.add("reveal-ready");
+    revealObserver.observe(target);
+  });
+}
