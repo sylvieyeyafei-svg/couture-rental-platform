@@ -68,40 +68,35 @@ const externalImageSources = {
   "assets/armani-prive-spring-2024-liquid-satin-suit.jpg": ["https://assets.vogue.com/photos/65b0c3283a7c1b133dfccfc3/master/w_960,c_limit/00017-armani-spring-2024-couture-credit-gorunway.jpg","https://www.vogue.com/fashion-shows/spring-2024-couture/armani-prive/slideshow/collection"]
 };
 
-const quizConceptReferences = [
-  ["RUNWAY TO WARDROBE","STYLING CONCEPT","Capucines-Inspired Quiet Luxury Styling","Capucines 灵感静奢造型","Quiet Luxury / Considered Authority","静奢 / 克制权威","Formal Dinner / Private Viewing","正式晚宴 / 私人预展","A consultation-led styling direction pairing sculptural accessories with restrained tailoring.","以雕塑感配饰与克制剪裁组合而成的咨询驱动造型方向。","It translates quietly powerful luxury into a polished, personal styling proposition.","将安静而有力量的奢华转化为精致且个性化的造型提案。","assets/sculpted.png","ref-tweed"],
-  ["DIOR","SPRING 2024 COUTURE","The Minimal Cream Look","极简奶油色造型","Minimal Cream / Relaxed Refinement","奶油极简 / 松弛精致","Formal Dinner / Wedding / Cultural Event","正式晚宴 / 婚礼 / 文化活动","A softly structured cream styling reference with calm proportion and refined ease.","柔和结构、平静比例与精致松弛感构成的奶油色造型参考。","It offers an understated bridge between ceremonial dressing and effortless modern luxury.","在仪式感着装与轻松现代奢华之间建立低调连接。","assets/dior-spring-2024-architectural-white-dress.jpg","ref-white"]
-];
-
 const referenceKey = (brand, look) => `${brand}|${look}`;
 const recommendationLookup = new Map(
-  [...Object.values(coutureReferences).flat(), ...quizConceptReferences].map(item => [referenceKey(item[0], item[2]), item])
+  Object.values(coutureReferences).flat().map(item => [referenceKey(item[0], item[2]), item])
 );
 
 const recommendationMatrix = {
   "Formal Dinner": {
-    "Quietly Powerful": [["CHANEL","The Couture Tweed Set"],["DIOR","The Architectural White Dress"],["RUNWAY TO WARDROBE","Capucines-Inspired Quiet Luxury Styling"]],
+    "Quietly Powerful": [["CHANEL","The Couture Tweed Set"],["DIOR","The Architectural White Dress"],["ARMANI PRIVÉ","The Liquid Satin Suit"]],
     "Romantic & Dramatic": [["ELIE SAAB","The Embroidered Evening Gown"],["ZUHAIR MURAD","The Red Carpet Cape Gown"],["VALENTINO","The Soft Ivory Couture Dress"]],
     "Sharp & Futuristic": [["IRIS VAN HERPEN","The Aquatic Architecture Dress"],["IRIS VAN HERPEN","The Kinetic Sculpture Gown"],["SCHIAPARELLI","The Sculptural Black Gown"]],
-    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["ARMANI PRIVÉ","The Liquid Satin Suit"],["DIOR","The Minimal Cream Look"]]
+    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["ARMANI PRIVÉ","The Liquid Satin Suit"],["VALENTINO","The Soft Ivory Couture Dress"]]
   },
   "Wedding": {
     "Quietly Powerful": [["DIOR","The Architectural White Dress"],["VALENTINO","The Soft Ivory Couture Dress"],["CHANEL","The Couture Tweed Set"]],
     "Romantic & Dramatic": [["GIAMBATTISTA VALLI","The Floral Volume Gown"],["ELIE SAAB","The Crystal Cape Gown"],["VALENTINO","The Soft Ivory Couture Dress"]],
     "Sharp & Futuristic": [["IRIS VAN HERPEN","The Ethereal Lace Structure"],["IRIS VAN HERPEN","The Celestial Web Dress"],["SCHIAPARELLI","The Sculptural Ivory Look"]],
-    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["DIOR","The Minimal Cream Look"],["ARMANI PRIVÉ","The Liquid Satin Suit"]]
+    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["VALENTINO","The Soft Ivory Couture Dress"],["ARMANI PRIVÉ","The Liquid Satin Suit"]]
   },
   "Art & Culture": {
     "Quietly Powerful": [["SCHIAPARELLI","The Black Anatomy Gown"],["DIOR","The Architectural White Dress"],["CHANEL","The Pearl Trim Jacket Dress"]],
     "Romantic & Dramatic": [["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Sheer Rose Dress"],["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Subversive Pearl Dress"],["GIAMBATTISTA VALLI","The Floral Volume Gown"]],
     "Sharp & Futuristic": [["IRIS VAN HERPEN","The Oceanic Wing Gown"],["IRIS VAN HERPEN","The Aquatic Architecture Dress"],["IRIS VAN HERPEN","The Kinetic Sculpture Gown"]],
-    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["ARMANI PRIVÉ","The Liquid Satin Suit"],["DIOR","The Minimal Cream Look"]]
+    "Relaxed & Refined": [["CHANEL","The Couture Tweed Set"],["ARMANI PRIVÉ","The Liquid Satin Suit"],["VALENTINO","The Soft Ivory Couture Dress"]]
   },
   "Private Party": {
     "Quietly Powerful": [["SCHIAPARELLI","The Sculptural Black Gown"],["CHANEL","The Pearl Trim Jacket Dress"],["DIOR","The Architectural White Dress"]],
     "Romantic & Dramatic": [["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Subversive Pearl Mini"],["JEAN PAUL GAULTIER BY SIMONE ROCHA","The Black Corset Tulle Gown"],["ELIE SAAB","The Crystal Cape Gown"]],
     "Sharp & Futuristic": [["IRIS VAN HERPEN","The Celestial Web Dress"],["IRIS VAN HERPEN","The Oceanic Wing Gown"],["SCHIAPARELLI","The Black Anatomy Gown"]],
-    "Relaxed & Refined": [["ARMANI PRIVÉ","The Liquid Satin Suit"],["CHANEL","The Couture Tweed Set"],["DIOR","The Minimal Cream Look"]]
+    "Relaxed & Refined": [["ARMANI PRIVÉ","The Liquid Satin Suit"],["CHANEL","The Couture Tweed Set"],["VALENTINO","The Soft Ivory Couture Dress"]]
   }
 };
 

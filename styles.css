@@ -155,6 +155,13 @@ footer{padding:85px 5vw 25px}
 .footer-contact{padding:0;border:0;background:none;color:inherit;text-align:left;font-size:inherit;letter-spacing:inherit;text-transform:uppercase}
 .footer-links a,.footer-contact{transition:color .25s ease}
 .footer-links a:hover,.footer-contact:hover{color:#fff}
+
+/* Quiz cards reuse the archive's original full-look imagery */
+.quiz-recommendation-image{height:auto;aspect-ratio:2/3;background:#d8d4cc}
+.quiz-recommendation-image img,
+.quiz-recommendation-image img[data-fallback]{width:100%;height:100%;object-fit:cover;object-position:center;filter:none!important;transform:none!important}
+@media(max-width:900px){.quiz-recommendation-card:last-child .quiz-recommendation-image{height:auto;aspect-ratio:2/3}}
+@media(max-width:620px){.quiz-recommendation-image,.quiz-recommendation-card:last-child .quiz-recommendation-image{height:auto;aspect-ratio:2/3}}
 .footer-bottom{font-size:6px;letter-spacing:.14em}
 
 .modal-backdrop{background:rgba(14,14,12,.74)}
