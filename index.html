@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,ital,wght@6..96,400;6..96,500;6..96,600;6..96,700;6..96,400;6..96,500&family=DM+Sans:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20260609-quizmatch">
+  <link rel="stylesheet" href="styles.css?v=20260610-production-2">
 </head>
 <body id="top">
   <div class="announcement">
@@ -22,8 +22,8 @@
     <nav class="desktop-nav" aria-label="Main navigation">
       <a href="#edit">Featured Edit</a>
       <a href="#archive">Couture Archive</a>
-      <a href="#rationale">Project Rationale</a>
-      <a href="#how">How It Works</a>
+      <a href="#rationale">Intelligence</a>
+      <a href="#how">The Service</a>
     </nav>
     <div class="header-actions">
       <button class="language-toggle" aria-label="Switch language"><span class="lang-en active">EN</span><span>/</span><span class="lang-zh">中文</span></button>
@@ -41,7 +41,7 @@
         <h1>Runway intelligence,<br><em>personally worn.</em></h1>
         <p class="hero-copy">An editorial styling service translating runway research and brand intelligence into singular couture directions, curated around the way you want to arrive.</p>
         <div class="hero-actions">
-          <a href="#edit" class="button button-light">Explore the Edit <span>↗</span></a>
+          <a href="#archive" class="button button-light">Enter the Archive <span>↗</span></a>
           <button class="button button-ghost quiz-trigger">Begin Consultation</button>
         </div>
       </div>
@@ -73,38 +73,38 @@
     <section class="featured-edit" id="edit">
       <div class="archive-heading">
         <div><p class="eyebrow">THE FEATURED EDIT · ISSUE 01</p><h2>Five couture ideas.<br><em>Five ways to arrive.</em></h2></div>
-        <p>Runway research translated into occasion-led styling directions for a consultation conversation.</p>
+        <p>A seasonal perspective on silhouette, presence, and the cultural language of couture.</p>
       </div>
       <div class="featured-grid" id="featured-grid"></div>
-      <p class="archive-disclaimer">Runway references are used for research and styling concept demonstration only. Not actual rental inventory.</p>
+      <p class="archive-disclaimer">Runway imagery informs the consultation and editorial direction. References are not presented as current rental inventory.</p>
     </section>
 
     <section class="rationale-section" id="rationale">
       <div class="rationale-title">
-        <p class="section-index">03 / PROJECT RATIONALE</p>
+        <p class="section-index">03 / PLATFORM INTELLIGENCE</p>
         <div>
-          <p class="eyebrow">PLATFORM THESIS · 2026</p>
-          <h2>A missing connection<br>between <em>insight</em> and access.</h2>
+          <p class="eyebrow">THE SERVICE MODEL</p>
+          <h2>Where intelligence<br>becomes <em>access.</em></h2>
         </div>
-        <p class="rationale-lede">Luxury trend intelligence influences the industry long before it reaches the individual. This project asks: what if that intelligence could guide a more personal, circular way to experience couture?</p>
+        <p class="rationale-lede">Runway intelligence shapes the industry long before it reaches the individual. We bring that perspective into a more personal, circular way to experience couture.</p>
       </div>
       <div class="rationale-grid">
         <article>
           <span class="rationale-number">01</span>
-          <p class="eyebrow">THE PROBLEM</p>
-          <h3>Trend knowledge stops at the report.</h3>
+          <p class="eyebrow">01 · INTELLIGENCE</p>
+          <h3>Read beyond the runway.</h3>
           <p>Runway analysis and forecasting shape production, yet rarely help consumers make more informed wardrobe decisions. The result is a gap between what the industry knows and what people can meaningfully access.</p>
         </article>
         <article>
           <span class="rationale-number">02</span>
-          <p class="eyebrow">THE COMPETITOR GAP</p>
-          <h3>Rental platforms offer inventory, not interpretation.</h3>
+          <p class="eyebrow">02 · INTERPRETATION</p>
+          <h3>Access needs a point of view.</h3>
           <p>Research across Rent the Runway, HURR, Une Robe Un Soir, and WGSN revealed a structural disconnect: rental provides access, while forecasting provides insight. Few services unite the two.</p>
         </article>
         <article class="rationale-solution">
           <span class="rationale-number">03</span>
-          <p class="eyebrow">THE PROPOSED SOLUTION</p>
-          <h3>Consultation-driven rental.</h3>
+          <p class="eyebrow">03 · CONSULTATION</p>
+          <h3>A wardrobe direction, personally edited.</h3>
           <p>Runway to Wardrobe translates runway signals and brand analysis into personalized, rentable couture styling. A stylist becomes the bridge between cultural insight, individual expression, and circular luxury.</p>
         </article>
       </div>
@@ -115,11 +115,38 @@
 
     <section class="archive-section" id="archive">
       <div class="archive-heading">
-        <div><p class="eyebrow">04 · CURATED COUTURE ARCHIVE</p><h2>A research library for<br><em>personal expression.</em></h2></div>
-        <p>Not a catalogue of inventory. A visual archive used by stylists to interpret silhouette, mood, occasion, and cultural relevance.</p>
+        <div><p class="eyebrow">04 · COUTURE ARCHIVE</p><h2>A living index of<br><em>couture codes.</em></h2></div>
+        <p>Explore by designer, season, silhouette, and occasion, or enter an editorial collection shaped by our point of view.</p>
       </div>
-      <p class="archive-disclaimer prominent">Runway references are used for research and styling concept demonstration only. Not actual rental inventory.</p>
+      <div class="archive-view-switch" role="group" aria-label="Archive view">
+        <button class="active" type="button" data-archive-view="index">Index</button>
+        <button type="button" data-archive-view="editorial">Editorial Collections</button>
+        <span>22 couture references · visual consultation archive</span>
+      </div>
 
+      <section class="archive-index" aria-labelledby="archive-index-title">
+        <div class="archive-index-top">
+          <div><p class="eyebrow">ARCHIVE INDEX · PRIVATE ACCESS</p><h3 id="archive-index-title">Find a direction.</h3></div>
+          <div class="archive-index-meta"><strong id="archive-result-count">00</strong><span>references in view</span></div>
+        </div>
+        <div class="archive-tools">
+          <label class="archive-search"><span>Search</span><input id="archive-search" type="search" placeholder="Designer, look or styling code"></label>
+          <label><span>Designer</span><select data-archive-filter="designer"><option value="">All designers</option></select></label>
+          <label><span>Season</span><select data-archive-filter="season"><option value="">All seasons</option></select></label>
+          <label><span>Occasion</span><select data-archive-filter="occasion"><option value="">All occasions</option></select></label>
+          <label><span>Mood</span><select data-archive-filter="mood"><option value="">All moods</option></select></label>
+          <label><span>Silhouette</span><select data-archive-filter="silhouette"><option value="">All silhouettes</option></select></label>
+          <label><span>Color</span><select data-archive-filter="color"><option value="">All colors</option></select></label>
+          <label><span>Style</span><select data-archive-filter="style"><option value="">All styles</option></select></label>
+          <button class="archive-reset" type="button">Reset filters</button>
+        </div>
+        <div class="archive-active-filters" aria-live="polite"></div>
+        <div class="archive-index-grid" id="archive-index-grid"></div>
+        <p class="archive-empty" hidden>No references match this combination. Reset a filter to widen the edit.</p>
+      </section>
+
+      <div class="editorial-collections">
+      <div class="editorial-collections-intro"><p class="eyebrow">EDITORIAL COLLECTIONS</p><h3>Four ways of reading couture.</h3><p>Curated chapters connect runway codes to the atmosphere, occasion, and presence they can create.</p></div>
       <section class="archive-chapter">
         <div class="chapter-heading"><span>ARCHIVE 01</span><h3>Iconic Couture Impact</h3><p>High-presence silhouettes for clients seeking an unforgettable formal entrance.</p></div>
         <div class="archive-grid" id="iconic-grid"></div>
@@ -143,11 +170,12 @@
         <div class="chapter-heading"><span>ARCHIVE 04</span><h3>Red Carpet Rental & Day Couture</h3><p>Commercially relevant occasion dressing, from photogenic evening glamour to polished daytime luxury.</p></div>
         <div class="archive-grid" id="occasion-grid"></div>
       </section>
+      </div>
     </section>
 
     <section class="how-section" id="how">
       <div class="how-intro">
-        <p class="eyebrow light">HOW IT WORKS</p>
+        <p class="eyebrow light">THE PRIVATE STYLING SERVICE</p>
         <h2>More than renting a dress.<br><em>Find your expression.</em></h2>
         <button class="button button-light quiz-trigger">Build My Style Profile <span>↗</span></button>
       </div>
@@ -159,7 +187,7 @@
     </section>
 
     <section class="journal" id="journal">
-      <p class="eyebrow">RUNWAY TO WARDROBE · PROJECT PERSPECTIVE</p>
+      <p class="eyebrow">RUNWAY TO WARDROBE · INTELLIGENCE NOTE</p>
       <div class="journal-content">
         <h2>The value of a garment<br>is not in being owned,<br><em>but in being worn.</em></h2>
         <div class="journal-note"><span>PERSPECTIVE  /  06.2026</span><p>From forecast to wardrobe: why the next generation of fashion platforms must reconnect trend research with consumer decisions.</p><a href="#rationale">Read the full perspective →</a></div>
@@ -169,42 +197,56 @@
     <section class="cta">
       <p class="eyebrow light">YOUR NEXT LOOK</p>
       <h2>Your next entrance<br><em>starts with a conversation.</em></h2>
-      <button class="button button-light quiz-trigger">Book a Complimentary Styling <span>↗</span></button>
+      <button class="button button-light quiz-trigger">Start a Private Consultation <span>↗</span></button>
     </section>
   </main>
 
   <footer>
     <div class="footer-top"><a class="logo" href="#top"><span class="logo-line">RUNWAY</span><i>to</i><span class="logo-line">WARDROBE</span></a><p>Turning runway intelligence into personalized rentable couture.</p></div>
-    <div class="footer-links"><a href="#edit">Featured Edit</a><a href="#archive">Couture Archive</a><a href="#rationale">Project Rationale</a><a href="#how">How It Works</a><a href="#journal">Journal</a><button class="footer-contact quiz-trigger">Contact</button></div>
-    <div class="footer-bottom"><span>© 2026 RUNWAY TO WARDROBE · COUTURE INTELLIGENCE PLATFORM</span><span>Concept, research, strategy, and experience design.</span></div>
+    <div class="footer-links"><a href="#edit">Featured Edit</a><a href="#archive">Couture Archive</a><a href="#rationale">Intelligence</a><a href="#how">The Service</a><a href="#journal">Journal</a><button class="footer-contact quiz-trigger">Private Consultation</button></div>
+    <div class="footer-bottom"><span>© 2026 RUNWAY TO WARDROBE · COUTURE INTELLIGENCE PLATFORM</span><span>Runway intelligence · private styling · circular access</span></div>
   </footer>
 
   <div class="mobile-menu">
     <button class="menu-close" aria-label="Close menu">×</button>
     <button class="language-toggle mobile-language" aria-label="Switch language"><span class="lang-en active">EN</span><span>/</span><span class="lang-zh">中文</span></button>
-    <a href="#edit">Featured Edit</a><a href="#archive">Couture Archive</a><a href="#rationale">Project Rationale</a><a href="#how">How It Works</a><a href="#journal">Journal</a>
+    <a href="#edit">Featured Edit</a><a href="#archive">Couture Archive</a><a href="#rationale">Intelligence</a><a href="#how">The Service</a><a href="#journal">Journal</a>
     <button class="button button-dark quiz-trigger">Build My Style Profile</button>
   </div>
 
   <div class="modal-backdrop" aria-hidden="true">
     <div class="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
       <button class="modal-close" aria-label="Close">×</button>
-      <div class="quiz-progress"><span></span><span></span><span></span></div>
-      <div class="quiz-step active" data-step="1"><p class="eyebrow">STYLE PROFILE · 01</p><h2 id="quiz-title">Where are you going?</h2><p class="quiz-sub">Choose the closest occasion. We will begin the curation from here.</p><div class="option-grid"><button>Formal Dinner</button><button>Wedding</button><button>Art & Culture</button><button>Private Party</button></div></div>
-      <div class="quiz-step" data-step="2"><p class="eyebrow">STYLE PROFILE · 02</p><h2>How do you want to be remembered?</h2><p class="quiz-sub">There is no right answer, only an expression closer to you.</p><div class="option-grid"><button>Quietly Powerful</button><button>Romantic & Dramatic</button><button>Sharp & Futuristic</button><button>Relaxed & Refined</button></div></div>
-      <div class="quiz-step quiz-result-step" data-step="3">
+      <div class="quiz-progress"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="quiz-service-meta"><span>PRIVATE STYLING CONSULTATION</span><span class="quiz-step-counter">01 / 07</span></div>
+      <div class="quiz-step active" data-step="1" data-key="occasion"><p class="eyebrow">CONSULTATION · OCCASION</p><h2 id="quiz-title">Where are you going?</h2><p class="quiz-sub">The cultural context of an event shapes the first direction of the edit.</p><div class="option-grid"><button>Formal Dinner</button><button>Wedding</button><button>Art & Culture</button><button>Private Party</button></div></div>
+      <div class="quiz-step" data-step="2" data-key="dressCode"><p class="eyebrow">CONSULTATION · DRESS CODE</p><h2>How formal is the room?</h2><p class="quiz-sub">We will calibrate presence, proportion, and ease around the invitation.</p><div class="option-grid"><button>Black Tie</button><button>Cocktail</button><button>Creative Formal</button><button>Daytime Polished</button></div></div>
+      <div class="quiz-step" data-step="3" data-key="bodyPreference"><p class="eyebrow">CONSULTATION · SILHOUETTE</p><h2>Which silhouette feels most like you?</h2><p class="quiz-sub">Choose the relationship you want between garment and body.</p><div class="option-grid"><button>Defined & Tailored</button><button>Fluid & Elongated</button><button>Sculptural & Voluminous</button><button>Sheer & Layered</button></div></div>
+      <div class="quiz-step" data-step="4" data-key="mood"><p class="eyebrow">CONSULTATION · IMPRESSION</p><h2>How do you want to be remembered?</h2><p class="quiz-sub">There is no right answer, only an expression closer to you.</p><div class="option-grid"><button>Quietly Powerful</button><button>Romantic & Dramatic</button><button>Sharp & Futuristic</button><button>Relaxed & Refined</button></div></div>
+      <div class="quiz-step" data-step="5" data-key="color"><p class="eyebrow">CONSULTATION · COLOR</p><h2>Which palette holds your attention?</h2><p class="quiz-sub">Color can whisper, frame, or completely transform a room.</p><div class="option-grid"><button>Black & Graphite</button><button>Ivory & Soft Neutrals</button><button>Jewel & Saturated</button><button>Metallic & Iridescent</button></div></div>
+      <div class="quiz-step" data-step="6" data-key="budget"><p class="eyebrow">CONSULTATION · INVESTMENT</p><h2>What rental range feels considered?</h2><p class="quiz-sub">This helps the stylist shape a commercially credible proposal.</p><div class="option-grid"><button>$500–$1,000</button><button>$1,000–$2,500</button><button>$2,500–$5,000</button><button>Open to exceptional pieces</button></div></div>
+      <div class="quiz-step" data-step="7" data-key="rentalDate"><p class="eyebrow">CONSULTATION · TIMING</p><h2>When do you need the look?</h2><p class="quiz-sub">Allow time for a stylist review, fitting conversation, and delivery planning.</p><label class="date-field"><span>Rental date</span><input class="rental-date-input" type="date"></label><button class="button button-dark date-continue" type="button">Complete My Profile <span>↗</span></button></div>
+      <div class="quiz-step quiz-result-step" data-step="8">
         <p class="eyebrow">STYLE PROFILE · COMPLETE</p>
         <div class="quiz-result-heading">
-          <div><h2>Your curated couture direction.</h2><p class="quiz-sub">Three runway references selected for your occasion and desired presence.</p></div>
-          <div class="quiz-selection-summary"><button type="button" data-edit-step="0"></button><button type="button" data-edit-step="1"></button></div>
+          <div><h2>Your private couture edit.</h2><p class="quiz-sub">Three runway references selected through your complete styling profile.</p></div>
+          <div class="quiz-selection-summary"></div>
         </div>
+        <div class="consultation-summary"></div>
         <div class="quiz-recommendations" aria-live="polite"></div>
-        <p class="quiz-recommendation-note">Recommendations are based on occasion, mood, and runway reference research. Visual references only, not actual rental inventory.</p>
-        <button class="button button-dark finish-quiz">See My Curated Looks <span>↗</span></button>
+        <p class="quiz-recommendation-note">Your edit combines occasion, silhouette, palette, dress code, and runway intelligence. Final availability is confirmed during stylist review.</p>
+        <div class="quiz-result-actions"><button class="button button-dark stylist-review" type="button">Request Stylist Review <span>↗</span></button><button class="finish-quiz" type="button">Continue into the archive →</button></div>
       </div>
     </div>
   </div>
+
+  <div class="look-backdrop" aria-hidden="true">
+    <article class="look-dossier" role="dialog" aria-modal="true" aria-labelledby="look-dossier-title">
+      <button class="look-close" aria-label="Close look dossier">×</button>
+      <div class="look-dossier-content"></div>
+    </article>
+  </div>
   <div class="toast">Added to your style profile</div>
-  <script src="script.js?v=20260609-quizmatch"></script>
+  <script src="script.js?v=20260610-production-2"></script>
 </body>
 </html>

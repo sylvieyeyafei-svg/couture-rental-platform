@@ -4,7 +4,18 @@ const progress = [...document.querySelectorAll(".quiz-progress span")];
 const toast = document.querySelector(".toast");
 let currentStep = 0;
 let currentLanguage = "en";
-const quizSelection = { occasion: null, mood: null };
+let consultationSeedKey = null;
+const quizSelection = {
+  occasion: null,
+  dressCode: null,
+  bodyPreference: null,
+  mood: null,
+  color: null,
+  budget: null,
+  rentalDate: null
+};
+const archiveFilters = { search: "", designer: "", season: "", occasion: "", mood: "", silhouette: "", color: "", style: "" };
+const lookBackdrop = document.querySelector(".look-backdrop");
 
 const coutureReferences = {
   featured: [
@@ -100,14 +111,18 @@ const recommendationMatrix = {
   }
 };
 
-function quizRecommendationCard(item) {
-  const [brand, season, enLook, zhLook, enMood, zhMood, enOccasion, zhOccasion, , , enWhy, zhWhy, image, visualClass] = item;
+function quizRecommendationCard(item, index) {
+  const [brand, season, enLook, zhLook, enMood, zhMood, enOccasion, zhOccasion, enNotes, zhNotes, enWhy, zhWhy, image, visualClass] = item;
   const zh = currentLanguage === "zh";
   const [externalImage] = externalImageSources[image] || [image];
+  const fitReason = zh
+    ? `${zhWhy} 同时回应你选择的${quizSelection.bodyPreference || "廓形偏好"}与${quizSelection.color || "色彩方向"}。`
+    : `${enWhy} It also responds to your ${quizSelection.bodyPreference?.toLowerCase() || "silhouette preference"} and ${quizSelection.color?.toLowerCase() || "chosen palette"}.`;
   return `<article class="quiz-recommendation-card">
-    <div class="quiz-recommendation-image ${visualClass}"><img src="${externalImage}" data-fallback="${image}" alt="${brand} ${season} — ${zh ? zhLook : enLook}, ${zh ? "仅作视觉参考" : "visual reference only"}"><span>${zh ? "仅作视觉参考" : "VISUAL REFERENCE ONLY"}</span></div>
-    <div class="quiz-recommendation-copy"><p>${brand} · ${season}</p><h3>${zh ? zhLook : enLook}</h3>
-    <dl><div><dt>${zh ? "情绪" : "Mood"}</dt><dd>${zh ? zhMood : enMood}</dd></div><div><dt>${zh ? "场合" : "Occasion"}</dt><dd>${zh ? zhOccasion : enOccasion}</dd></div><div><dt>${zh ? "推荐理由" : "Why this look"}</dt><dd>${zh ? zhWhy : enWhy}</dd></div></dl></div>
+    <div class="quiz-recommendation-image ${visualClass}"><img src="${externalImage}" data-fallback="${image}" alt="${brand} ${season} — ${zh ? zhLook : enLook}, ${zh ? "仅作视觉参考" : "visual reference only"}"><span>${index === 0 ? (zh ? "首选方向" : "PRIMARY DIRECTION") : `${zh ? "备选方向" : "ALTERNATIVE"} 0${index}`}</span></div>
+    <div class="quiz-recommendation-copy"><p><b>0${index + 1}</b>${brand} · ${season}</p><h3>${zh ? zhLook : enLook}</h3>
+    <dl><div><dt>${zh ? "情绪" : "Mood"}</dt><dd>${zh ? zhMood : enMood}</dd></div><div><dt>${zh ? "造型笔记" : "Styling notes"}</dt><dd>${zh ? zhNotes : enNotes}</dd></div><div><dt>${zh ? "适合你的原因" : "Why it fits you"}</dt><dd>${fitReason}</dd></div><div><dt>${zh ? "租赁用途" : "Rental purpose"}</dt><dd>${zh ? zhOccasion : enOccasion} · ${quizSelection.rentalDate || (zh ? "日期待确认" : "date to be confirmed")}</dd></div></dl>
+    <button class="recommendation-detail" type="button" data-look-key="${referenceKey(brand, enLook)}">${zh ? "查看完整档案" : "View full dossier"} <span>↗</span></button></div>
   </article>`;
 }
 
@@ -117,18 +132,57 @@ function renderQuizRecommendations() {
     container.innerHTML = "";
     return;
   }
-  const recommendations = recommendationMatrix[quizSelection.occasion][quizSelection.mood]
-    .map(([brand, look]) => recommendationLookup.get(referenceKey(brand, look)))
-    .filter(Boolean);
+  const recommendations = getCuratedRecommendations();
   container.innerHTML = recommendations.map(quizRecommendationCard).join("");
-  const summary = document.querySelectorAll(".quiz-selection-summary button");
-  summary[0].textContent = `${currentLanguage === "zh" ? "场合" : "Occasion"} · ${currentLanguage === "zh" ? translations[quizSelection.occasion] : quizSelection.occasion} ↗`;
-  summary[1].textContent = `${currentLanguage === "zh" ? "情绪" : "Mood"} · ${currentLanguage === "zh" ? translations[quizSelection.mood] : quizSelection.mood} ↗`;
+  const labels = currentLanguage === "zh"
+    ? { occasion: "场合", dressCode: "着装要求", bodyPreference: "廓形", mood: "印象", color: "色彩", budget: "预算", rentalDate: "租赁日期" }
+    : { occasion: "Occasion", dressCode: "Dress code", bodyPreference: "Silhouette", mood: "Impression", color: "Color", budget: "Budget", rentalDate: "Rental date" };
+  document.querySelector(".quiz-selection-summary").innerHTML = Object.entries(quizSelection)
+    .filter(([, value]) => value)
+    .map(([key, value]) => `<button type="button" data-edit-key="${key}">${labels[key]} · ${currentLanguage === "zh" ? translations[value] || value : value} ↗</button>`).join("");
+  document.querySelector(".consultation-summary").innerHTML = currentLanguage === "zh"
+    ? `<span>造型师摘要</span><p>为${translations[quizSelection.occasion] || quizSelection.occasion}策划${translations[quizSelection.dressCode] || quizSelection.dressCode}造型，以${translations[quizSelection.bodyPreference] || quizSelection.bodyPreference}廓形呈现${translations[quizSelection.mood] || quizSelection.mood}印象。色彩方向：${translations[quizSelection.color] || quizSelection.color}。租赁预算：${translations[quizSelection.budget] || quizSelection.budget}。</p>`
+    : `<span>Stylist brief</span><p>${quizSelection.dressCode} dressing for ${quizSelection.occasion}, with a ${quizSelection.bodyPreference?.toLowerCase()} silhouette and a ${quizSelection.mood?.toLowerCase()} impression. Palette: ${quizSelection.color}. Rental range: ${quizSelection.budget}.</p>`;
+  bindDetailTriggers();
+}
+
+function getCuratedRecommendations() {
+  const baseKeys = new Set(recommendationMatrix[quizSelection.occasion][quizSelection.mood].map(([brand, look]) => referenceKey(brand, look)));
+  const silhouettePreference = {
+    "Defined & Tailored": "Tailored",
+    "Fluid & Elongated": "Gown",
+    "Sculptural & Voluminous": "Sculptural",
+    "Sheer & Layered": "Layered"
+  }[quizSelection.bodyPreference];
+  const colorPreference = {
+    "Black & Graphite": "Black",
+    "Ivory & Soft Neutrals": "Ivory",
+    "Jewel & Saturated": "Color",
+    "Metallic & Iridescent": "Metallic"
+  }[quizSelection.color];
+  const dressCodePreferences = {
+    "Black Tie": ["Gown", "Sculptural", "Red Carpet"],
+    "Cocktail": ["Mini", "Tailored", "Romantic"],
+    "Creative Formal": ["Sculptural", "Layered", "Future Couture"],
+    "Daytime Polished": ["Tailored", "Quiet Luxury", "Refined"]
+  }[quizSelection.dressCode] || [];
+  return archiveItems.map(item => {
+    const meta = inferArchiveMeta(item);
+    const key = referenceKey(item[0], item[2]);
+    let score = baseKeys.has(key) ? 10 : 0;
+    if (key === consultationSeedKey) score += 12;
+    if (meta.silhouette === silhouettePreference) score += 7;
+    if (meta.color === colorPreference) score += 12;
+    else if (colorPreference) score -= 2;
+    if (dressCodePreferences.includes(meta.silhouette) || dressCodePreferences.includes(meta.style) || dressCodePreferences.includes(meta.mood)) score += 4;
+    if ((quizSelection.occasion === "Art & Culture" && meta.occasion === "Art & Culture") || (quizSelection.occasion === "Wedding" && meta.occasion === "Wedding") || (quizSelection.occasion === "Private Party" && meta.occasion === "Private Party") || (quizSelection.occasion === "Formal Dinner" && meta.occasion === "Formal")) score += 3;
+    return { item, score };
+  }).sort((a, b) => b.score - a.score).slice(0, 3).map(entry => entry.item);
 }
 
 function renderQuizSelections() {
   document.querySelectorAll(".option-grid button").forEach(button => {
-    const selectionType = button.closest(".quiz-step").dataset.step === "1" ? "occasion" : "mood";
+    const selectionType = button.closest(".quiz-step").dataset.key;
     button.classList.toggle("selected", quizSelection[selectionType] === button.dataset.selectionValue);
   });
 }
@@ -137,11 +191,12 @@ function referenceCard(item, featured = false, future = false) {
   const [brand, season, enLook, zhLook, enMood, zhMood, enOccasion, zhOccasion, enNotes, zhNotes, enWhy, zhWhy, image, visualClass] = item;
   const zh = currentLanguage === "zh";
   const [externalImage, sourcePage] = externalImageSources[image] || [image, "#"];
-  return `<article class="${featured ? "featured-card" : "archive-card"} ${future ? "future-card" : ""}">
+  const key = referenceKey(brand, enLook);
+  return `<article class="${featured ? "featured-card" : "archive-card"} ${future ? "future-card" : ""}" data-look-key="${key}">
     <div class="reference-media"><div class="reference-visual ${visualClass}"><img src="${externalImage}" data-fallback="${image}" alt="${brand} ${season} — ${zh ? zhLook : enLook}, ${zh ? "仅作视觉参考" : "visual reference only"}"><span>${zh ? "仅作视觉参考" : "VISUAL REFERENCE ONLY"}</span><b>${brand}<br>${season}</b></div><a class="source-credit" href="${sourcePage}" target="_blank" rel="noreferrer">${zh ? "图片参考：Vogue Runway" : "Image reference: Vogue Runway"} ↗</a></div>
     <div class="reference-copy"><p class="reference-season">${brand} · ${season}</p><h3>${zh ? zhLook : enLook}</h3>
     <dl><div><dt>${zh ? "情绪" : "Mood"}</dt><dd>${zh ? zhMood : enMood}</dd></div><div><dt>${zh ? "场合" : "Occasion"}</dt><dd>${zh ? zhOccasion : enOccasion}</dd></div><div><dt>${zh ? "造型笔记" : "Style Notes"}</dt><dd>${zh ? zhNotes : enNotes}</dd></div><div><dt>${zh ? "租赁价值" : "Why Rent"}</dt><dd>${zh ? zhWhy : enWhy}</dd></div></dl>
-    <button class="reference-consult quiz-trigger">${zh ? "以此造型开启咨询" : "Consult from this reference"} <span>↗</span></button></div></article>`;
+    <div class="reference-actions"><button class="look-detail-trigger" type="button" data-look-key="${key}">${zh ? "查看造型档案" : "View dossier"} <span>↗</span></button><button class="reference-consult quiz-trigger">${zh ? "以此造型开启咨询" : "Consult from this reference"} <span>↗</span></button></div></div></article>`;
 }
 
 function renderArchive() {
@@ -150,7 +205,85 @@ function renderArchive() {
   document.querySelector("#young-grid").innerHTML = coutureReferences.young.map(item => referenceCard(item)).join("");
   document.querySelector("#future-grid").innerHTML = coutureReferences.future.map(item => referenceCard(item, false, true)).join("");
   document.querySelector("#occasion-grid").innerHTML = coutureReferences.occasion.map(item => referenceCard(item)).join("");
+  renderArchiveIndex();
   bindQuizTriggers();
+  bindDetailTriggers();
+}
+
+const archiveItems = [...new Map(Object.values(coutureReferences).flat().map(item => [referenceKey(item[0], item[2]), item])).values()];
+
+function inferArchiveMeta(item) {
+  const [brand, season, look, , mood, , occasion, , notes, , , , , visualClass] = item;
+  const text = `${look} ${mood} ${occasion} ${notes} ${visualClass}`.toLowerCase();
+  const silhouette = text.includes("mini") ? "Mini" : text.includes("suit") || text.includes("set") || text.includes("jacket") ? "Tailored" : text.includes("sculpt") || text.includes("architect") || text.includes("volume") || text.includes("wing") ? "Sculptural" : text.includes("sheer") || text.includes("lace") || text.includes("tulle") ? "Layered" : "Gown";
+  const color = text.includes("black") || text.includes("graphite") || visualClass.includes("black") || visualClass.includes("anatomy") ? "Black" : text.includes("ivory") || text.includes("white") || text.includes("cream") ? "Ivory" : text.includes("silver") || text.includes("crystal") || text.includes("satin") || text.includes("celestial") ? "Metallic" : "Color";
+  const style = text.includes("future") || text.includes("technology") || text.includes("kinetic") || text.includes("aquatic") ? "Future Couture" : text.includes("romantic") || text.includes("floral") || text.includes("rose") ? "Romantic" : text.includes("day") || text.includes("quiet") || text.includes("tweed") || text.includes("tailor") ? "Quiet Luxury" : text.includes("red carpet") || text.includes("gala") || text.includes("cape") ? "Red Carpet" : "Sculptural Couture";
+  const occasionGroup = /wedding|garden/.test(text) ? "Wedding" : /museum|art|gallery|culture|exhibition|technology/.test(text) ? "Art & Culture" : /cocktail|party|fashion week/.test(text) ? "Private Party" : "Formal";
+  const moodGroup = /future|technology|kinetic|aquatic|celestial/.test(text) ? "Futuristic" : /romantic|floral|rose|soft|pearl/.test(text) ? "Romantic" : /quiet|day|refined|architectural/.test(text) ? "Refined" : "Dramatic";
+  return { designer: brand, season, occasion: occasionGroup, mood: moodGroup, silhouette, color, style };
+}
+
+function archiveIndexCard(item) {
+  const [brand, season, enLook, zhLook, enMood, zhMood, , , , , , , image] = item;
+  const zh = currentLanguage === "zh";
+  const [externalImage] = externalImageSources[image] || [image];
+  const meta = inferArchiveMeta(item);
+  const key = referenceKey(brand, enLook);
+  return `<article class="index-card" data-look-key="${key}">
+    <button class="index-card-visual look-detail-trigger" type="button" data-look-key="${key}" aria-label="View ${enLook} dossier"><img src="${externalImage}" data-fallback="${image}" alt="${brand} ${season} — ${zh ? zhLook : enLook}"><span>VIEW DOSSIER ↗</span></button>
+    <div class="index-card-copy"><p>${brand} · ${season}</p><h4>${zh ? zhLook : enLook}</h4><div><span>${zh ? zhMood : enMood}</span><span>${meta.silhouette}</span><span>${meta.color}</span></div></div>
+  </article>`;
+}
+
+function populateArchiveFilters() {
+  const filterKeys = ["designer", "season", "occasion", "mood", "silhouette", "color", "style"];
+  filterKeys.forEach(key => {
+    const select = document.querySelector(`[data-archive-filter="${key}"]`);
+    if (!select || select.options.length > 1) return;
+    [...new Set(archiveItems.map(item => inferArchiveMeta(item)[key]))].sort().forEach(value => select.add(new Option(value, value)));
+  });
+}
+
+function renderArchiveIndex() {
+  populateArchiveFilters();
+  const results = archiveItems.filter(item => {
+    const meta = inferArchiveMeta(item);
+    const searchText = item.slice(0, 12).join(" ").toLowerCase();
+    return (!archiveFilters.search || searchText.includes(archiveFilters.search.toLowerCase()))
+      && Object.entries(archiveFilters).every(([key, value]) => key === "search" || !value || meta[key] === value);
+  });
+  document.querySelector("#archive-index-grid").innerHTML = results.map(archiveIndexCard).join("");
+  document.querySelector("#archive-result-count").textContent = String(results.length).padStart(2, "0");
+  document.querySelector(".archive-empty").hidden = results.length > 0;
+  document.querySelector(".archive-active-filters").innerHTML = Object.entries(archiveFilters).filter(([, value]) => value).map(([key, value]) => `<button type="button" data-clear-filter="${key}">${key} · ${value} ×</button>`).join("");
+  bindDetailTriggers();
+}
+
+function openLookDossier(item) {
+  const [brand, season, enLook, zhLook, enMood, zhMood, enOccasion, zhOccasion, enNotes, zhNotes, enWhy, zhWhy, image] = item;
+  const zh = currentLanguage === "zh";
+  const [externalImage, sourcePage] = externalImageSources[image] || [image, "#"];
+  const meta = inferArchiveMeta(item);
+  const archivePosition = String(archiveItems.findIndex(entry => referenceKey(entry[0], entry[2]) === referenceKey(brand, enLook)) + 1).padStart(2, "0");
+  document.querySelector(".look-dossier-content").innerHTML = `<div class="dossier-image"><img src="${externalImage}" data-fallback="${image}" alt="${brand} ${season} — ${zh ? zhLook : enLook}"><span>VISUAL REFERENCE ONLY</span></div>
+    <div class="dossier-copy"><div class="dossier-position"><span>ARCHIVE REFERENCE ${archivePosition} / ${String(archiveItems.length).padStart(2, "0")}</span><span>${meta.style}</span></div><p class="eyebrow">${brand} · ${season}</p><h2 id="look-dossier-title">${zh ? zhLook : enLook}</h2><p class="dossier-lede">${zh ? zhNotes : enNotes}</p>
+    <div class="dossier-tags"><span>${meta.silhouette}</span><span>${meta.color}</span><span>${meta.style}</span></div>
+    <dl><div><dt>${zh ? "情绪" : "Mood"}</dt><dd>${zh ? zhMood : enMood}</dd></div><div><dt>${zh ? "场合" : "Occasion"}</dt><dd>${zh ? zhOccasion : enOccasion}</dd></div><div><dt>${zh ? "租赁价值" : "Rental rationale"}</dt><dd>${zh ? zhWhy : enWhy}</dd></div><div><dt>${zh ? "造型建议" : "Stylist direction"}</dt><dd>Build the final look through proportion, accessories, and event context during the private consultation.</dd></div></dl>
+    <div class="dossier-actions"><button class="button button-dark quiz-trigger" data-look-key="${referenceKey(brand, enLook)}">${zh ? "以此造型开始咨询" : "Consult from this look"} <span>↗</span></button><a href="${sourcePage}" target="_blank" rel="noreferrer">View runway source ↗</a></div></div>`;
+  lookBackdrop.classList.add("open");
+  lookBackdrop.setAttribute("aria-hidden", "false");
+  bindQuizTriggers();
+}
+
+function bindDetailTriggers() {
+  document.querySelectorAll(".look-detail-trigger, .recommendation-detail").forEach(button => {
+    if (button.dataset.detailBound) return;
+    button.dataset.detailBound = "true";
+    button.addEventListener("click", () => {
+      const item = recommendationLookup.get(button.dataset.lookKey);
+      if (item) openLookDossier(item);
+    });
+  });
 }
 
 document.addEventListener("error", event => {
@@ -333,6 +466,93 @@ const translations = {
   "Three runway references selected for your occasion and desired presence.": "根据你的场合与期待呈现的气质，精选三组秀场参考。",
   "Recommendations are based on occasion, mood, and runway reference research. Visual references only, not actual rental inventory.": "推荐基于场合、情绪与秀场参考研究。仅作视觉参考，并非实际租赁库存。",
   "See My Curated Looks": "查看为我精选的造型"
+  ,"Platform Thesis": "平台主张"
+  ,"03 / PLATFORM THESIS": "03 / 平台主张"
+  ,"RUNWAY TO WARDROBE · INTELLIGENCE NOTE": "RUNWAY TO WARDROBE · 洞察笔记"
+  ,"ARCHIVE INDEX · RESEARCH MODE": "档案索引 · 研究模式"
+  ,"Explore the intelligence library.": "探索时装洞察资料库。"
+  ,"references in view": "条当前参考"
+  ,"Search": "搜索"
+  ,"Designer": "设计师"
+  ,"Season": "季度"
+  ,"Occasion": "场合"
+  ,"Mood": "情绪"
+  ,"Silhouette": "廓形"
+  ,"Color": "色彩"
+  ,"Style": "风格"
+  ,"Reset filters": "重置筛选"
+  ,"No references match this combination. Reset a filter to widen the edit.": "暂无符合此组合的参考，请重置筛选以扩大范围。"
+  ,"PRIVATE STYLING CONSULTATION": "私人造型咨询"
+  ,"CONSULTATION · OCCASION": "咨询 · 场合"
+  ,"The cultural context of an event shapes the first direction of the edit.": "活动的文化语境决定造型编辑的第一方向。"
+  ,"CONSULTATION · DRESS CODE": "咨询 · 着装要求"
+  ,"How formal is the room?": "这个场合有多正式？"
+  ,"We will calibrate presence, proportion, and ease around the invitation.": "我们将依据邀请要求调整存在感、比例与松弛度。"
+  ,"Black Tie": "黑领结"
+  ,"Cocktail": "鸡尾酒会"
+  ,"Creative Formal": "创意正式"
+  ,"Daytime Polished": "精致日间"
+  ,"CONSULTATION · SILHOUETTE": "咨询 · 廓形"
+  ,"Which silhouette feels most like you?": "哪种廓形最像你？"
+  ,"Choose the relationship you want between garment and body.": "选择你期待的服装与身体关系。"
+  ,"Defined & Tailored": "利落剪裁"
+  ,"Fluid & Elongated": "流动修长"
+  ,"Sculptural & Voluminous": "雕塑体量"
+  ,"Sheer & Layered": "透明层叠"
+  ,"CONSULTATION · IMPRESSION": "咨询 · 印象"
+  ,"CONSULTATION · COLOR": "咨询 · 色彩"
+  ,"Which palette holds your attention?": "哪种色彩最吸引你？"
+  ,"Color can whisper, frame, or completely transform a room.": "色彩可以低语、构图，也可以彻底改变一个空间。"
+  ,"Black & Graphite": "黑色与石墨色"
+  ,"Ivory & Soft Neutrals": "象牙白与柔和中性色"
+  ,"Jewel & Saturated": "宝石色与高饱和色"
+  ,"Metallic & Iridescent": "金属与虹彩色"
+  ,"CONSULTATION · INVESTMENT": "咨询 · 预算"
+  ,"What rental range feels considered?": "什么租赁预算更合适？"
+  ,"This helps the stylist shape a commercially credible proposal.": "这将帮助造型师制定更具商业可行性的提案。"
+  ,"Open to exceptional pieces": "可考虑特别单品"
+  ,"CONSULTATION · TIMING": "咨询 · 时间"
+  ,"When do you need the look?": "你什么时候需要这套造型？"
+  ,"Allow time for a stylist review, fitting conversation, and delivery planning.": "请为造型师审核、试穿沟通与配送计划预留时间。"
+  ,"Rental date": "租赁日期"
+  ,"Complete My Profile": "完成我的风格档案"
+  ,"Your private couture edit.": "你的私人高定编辑。"
+  ,"Three runway references selected through your complete styling profile.": "根据你的完整造型档案精选三组秀场参考。"
+  ,"View dossier": "查看造型档案"
+  ,"View full dossier": "查看完整档案"
+  ,"Intelligence": "时装洞察"
+  ,"The Service": "私人服务"
+  ,"Enter the Archive": "进入高定档案"
+  ,"A seasonal perspective on silhouette, presence, and the cultural language of couture.": "从廓形、存在感与高定文化语言出发的季节性编辑视角。"
+  ,"Runway imagery informs the consultation and editorial direction. References are not presented as current rental inventory.": "秀场图像用于造型咨询与编辑方向，并不代表当前可租赁库存。"
+  ,"03 / PLATFORM INTELLIGENCE": "03 / 平台洞察"
+  ,"THE SERVICE MODEL": "服务模式"
+  ,"Where intelligence": "让洞察"
+  ,"becomes": "转化为"
+  ,"access.": "真实体验。"
+  ,"Runway intelligence shapes the industry long before it reaches the individual. We bring that perspective into a more personal, circular way to experience couture.": "秀场洞察塑造行业的时间远早于触达个人。我们将这一视角带入更私人、更循环的高定体验。"
+  ,"01 · INTELLIGENCE": "01 · 洞察"
+  ,"Read beyond the runway.": "读懂秀场之外。"
+  ,"02 · INTERPRETATION": "02 · 解读"
+  ,"Access needs a point of view.": "获取需要独特视角。"
+  ,"03 · CONSULTATION": "03 · 咨询"
+  ,"A wardrobe direction, personally edited.": "为你编辑的衣橱方向。"
+  ,"04 · COUTURE ARCHIVE": "04 · 高定档案"
+  ,"A living index of": "持续更新的"
+  ,"couture codes.": "高定语言索引。"
+  ,"Explore by designer, season, silhouette, and occasion, or enter an editorial collection shaped by our point of view.": "按设计师、季度、廓形与场合探索，或进入由我们观点策划的编辑系列。"
+  ,"Index": "索引"
+  ,"Editorial Collections": "编辑系列"
+  ,"ARCHIVE INDEX · PRIVATE ACCESS": "档案索引 · 私人访问"
+  ,"Find a direction.": "找到你的方向。"
+  ,"Four ways of reading couture.": "四种阅读高定的方式。"
+  ,"Curated chapters connect runway codes to the atmosphere, occasion, and presence they can create.": "精选章节将秀场语言与其能够创造的氛围、场合与存在感连接。"
+  ,"THE PRIVATE STYLING SERVICE": "私人造型服务"
+  ,"Start a Private Consultation": "开始私人造型咨询"
+  ,"Private Consultation": "私人咨询"
+  ,"Your edit combines occasion, silhouette, palette, dress code, and runway intelligence. Final availability is confirmed during stylist review.": "你的精选方向结合场合、廓形、色彩、着装要求与秀场洞察。最终可用性将在造型师审核中确认。"
+  ,"Request Stylist Review": "申请造型师审核"
+  ,"Continue into the archive →": "继续进入档案 →"
 };
 
 const reverseTranslations = Object.fromEntries(Object.entries(translations).map(([en, zh]) => [zh, en]));
@@ -375,9 +595,10 @@ function showToast(message) {
 function renderQuiz() {
   steps.forEach((step, index) => step.classList.toggle("active", index === currentStep));
   progress.forEach((item, index) => item.classList.toggle("on", index <= currentStep));
-  document.querySelector(".quiz-modal").classList.toggle("quiz-results-open", currentStep === 2);
+  document.querySelector(".quiz-modal").classList.toggle("quiz-results-open", currentStep === 7);
+  document.querySelector(".quiz-step-counter").textContent = currentStep === 7 ? "PROFILE COMPLETE" : `${String(currentStep + 1).padStart(2, "0")} / 07`;
   renderQuizSelections();
-  if (currentStep === 2) renderQuizRecommendations();
+  if (currentStep === 7) renderQuizRecommendations();
 }
 
 function bindQuizTriggers() {
@@ -385,7 +606,9 @@ function bindQuizTriggers() {
     if (button.dataset.quizBound) return;
     button.dataset.quizBound = "true";
     button.addEventListener("click", () => {
+      consultationSeedKey = button.closest("[data-look-key]")?.dataset.lookKey || button.dataset.lookKey || null;
       document.querySelector(".mobile-menu").classList.remove("open");
+      lookBackdrop.classList.remove("open");
       currentStep = 0;
       renderQuiz();
       backdrop.classList.add("open");
@@ -399,6 +622,7 @@ renderArchive();
 document.querySelectorAll(".option-grid button").forEach(button => {
   button.dataset.selectionValue = button.textContent.trim();
 });
+document.querySelector(".rental-date-input").min = new Date().toISOString().slice(0, 10);
 
 document.querySelector(".modal-close").addEventListener("click", () => backdrop.classList.remove("open"));
 backdrop.addEventListener("click", event => {
@@ -406,16 +630,32 @@ backdrop.addEventListener("click", event => {
 });
 
 document.querySelectorAll(".option-grid button").forEach(option => option.addEventListener("click", () => {
-  const selectionType = option.closest(".quiz-step").dataset.step === "1" ? "occasion" : "mood";
+  const selectionType = option.closest(".quiz-step").dataset.key;
   quizSelection[selectionType] = option.dataset.selectionValue;
-  currentStep = selectionType === "occasion" ? 1 : 2;
+  currentStep = Math.min(currentStep + 1, 7);
   renderQuiz();
 }));
 
-document.querySelectorAll(".quiz-selection-summary button").forEach(button => button.addEventListener("click", () => {
-  currentStep = Number(button.dataset.editStep);
+document.querySelector(".quiz-selection-summary").addEventListener("click", event => {
+  const button = event.target.closest("[data-edit-key]");
+  if (!button) return;
+  const step = steps.findIndex(item => item.dataset.key === button.dataset.editKey);
+  if (step >= 0) {
+    currentStep = step;
+    renderQuiz();
+  }
+});
+
+document.querySelector(".date-continue").addEventListener("click", () => {
+  const value = document.querySelector(".rental-date-input").value;
+  if (!value) {
+    showToast("Please select a rental date to complete your profile.");
+    return;
+  }
+  quizSelection.rentalDate = value;
+  currentStep = 7;
   renderQuiz();
-}));
+});
 
 document.querySelector(".finish-quiz").addEventListener("click", () => {
   backdrop.classList.remove("open");
@@ -441,6 +681,45 @@ document.querySelectorAll(".filter").forEach(filter => filter.addEventListener("
   });
 }));
 
+document.querySelector("#archive-search").addEventListener("input", event => {
+  archiveFilters.search = event.target.value.trim();
+  renderArchiveIndex();
+});
+document.querySelectorAll("[data-archive-filter]").forEach(select => select.addEventListener("change", () => {
+  archiveFilters[select.dataset.archiveFilter] = select.value;
+  renderArchiveIndex();
+}));
+document.querySelector(".archive-reset").addEventListener("click", () => {
+  Object.keys(archiveFilters).forEach(key => archiveFilters[key] = "");
+  document.querySelector("#archive-search").value = "";
+  document.querySelectorAll("[data-archive-filter]").forEach(select => select.value = "");
+  renderArchiveIndex();
+});
+document.querySelector(".archive-active-filters").addEventListener("click", event => {
+  const button = event.target.closest("[data-clear-filter]");
+  if (!button) return;
+  archiveFilters[button.dataset.clearFilter] = "";
+  const control = button.dataset.clearFilter === "search" ? document.querySelector("#archive-search") : document.querySelector(`[data-archive-filter="${button.dataset.clearFilter}"]`);
+  if (control) control.value = "";
+  renderArchiveIndex();
+});
+document.querySelectorAll("[data-archive-view]").forEach(button => button.addEventListener("click", () => {
+  document.querySelectorAll("[data-archive-view]").forEach(item => item.classList.toggle("active", item === button));
+  const editorial = button.dataset.archiveView === "editorial";
+  document.querySelector("#archive").classList.toggle("editorial-view", editorial);
+  if (editorial) document.querySelectorAll(".editorial-collections .reveal-ready").forEach(item => item.classList.add("is-visible"));
+  document.querySelector(".archive-view-switch").scrollIntoView({ behavior: "smooth", block: "start" });
+}));
+
+document.querySelector(".look-close").addEventListener("click", () => lookBackdrop.classList.remove("open"));
+lookBackdrop.addEventListener("click", event => {
+  if (event.target === lookBackdrop) lookBackdrop.classList.remove("open");
+});
+
+document.querySelector(".stylist-review").addEventListener("click", () => {
+  showToast(currentLanguage === "zh" ? "你的造型档案已准备好，可进入私人造型师审核。" : "Your styling brief is ready for a private stylist review.");
+});
+
 const mobileMenu = document.querySelector(".mobile-menu");
 document.querySelector(".menu-button").addEventListener("click", () => mobileMenu.classList.add("open"));
 document.querySelector(".menu-close").addEventListener("click", () => mobileMenu.classList.remove("open"));
@@ -449,6 +728,7 @@ mobileMenu.querySelectorAll("a").forEach(link => link.addEventListener("click", 
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
     backdrop.classList.remove("open");
+    lookBackdrop.classList.remove("open");
     mobileMenu.classList.remove("open");
   }
 });
